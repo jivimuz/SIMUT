@@ -11,27 +11,32 @@ class AuthController extends Controller
 {
     public function login()
     {
+        if (Auth::check()) {
+            // User is authenticated, redirect to some other page
+            return redirect('/');
+        }
         return view('Auth.Login');
     }
 
-    public function actionlogin(Request $request)
+    public function loginAuth(Request $request)
     {
         $data = [
             'email' => $request->input('email'),
             'password' => $request->input('password'),
         ];
 
+        // dd($request);
+
         if (Auth::Attempt($data)) {
-            return redirect('home');
+            return response()->json(['message' => 'Signed in successfully'], 200);
         }else{
-            Session::flash('error', 'Email atau Password Salah');
-            return redirect('/');
+            return response()->json(['message' => 'Email atau Password Salah'], 401);
         }
     }
 
     public function actionlogout()
     {
         Auth::logout();
-        return redirect('/');
+        return redirect('/login');
     }
 }

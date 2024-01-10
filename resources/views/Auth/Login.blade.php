@@ -21,6 +21,7 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <!-- CSS Files -->
   <link id="pagestyle" href="{{asset('css/material-dashboard.css?v=3.0.0')}}" rel="stylesheet" />
+  <link id="pagestyle" href="{{asset('css/sweetalert2.min.css')}}" rel="stylesheet" />
 </head>
 
 <body class="bg-gray-200">
@@ -80,7 +81,7 @@
     </div>
   </div>
   <main class="main-content  mt-0">
-    <div class="page-header align-items-start min-vh-100" style="background-image: url('https://images.unsplash.com/photo-1497294815431-9365093b7331?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1950&q=80');">
+    <div class="page-header align-items-start min-vh-100" style="background-image: url('{{asset('img/bg-pricing.jpg')}}');">
       <span class="mask bg-gradient-dark opacity-6"></span>
       <div class="container my-auto">
         <div class="row">
@@ -109,21 +110,22 @@
                 </div>
               </div>
               <div class="card-body">
-                <form role="form" class="text-start">
+                <form role="form" class="text-start" id="login-form">
+                    @csrf
                   <div class="input-group input-group-outline my-3">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-control">
+                    <input type="email" name="email" class="form-control">
                   </div>
                   <div class="input-group input-group-outline mb-3">
                     <label class="form-label">Password</label>
-                    <input type="password" class="form-control">
+                    <input type="password" name="password" class="form-control">
                   </div>
                   <div class="form-check form-switch d-flex align-items-center mb-3">
                     <input class="form-check-input" type="checkbox" id="rememberMe">
                     <label class="form-check-label mb-0 ms-2" for="rememberMe">Remember me</label>
                   </div>
                   <div class="text-center">
-                    <a href="/" class="btn bg-gradient-primary w-100 my-4 mb-2">Sign in</a>
+                    <button type="submit" class="btn bg-gradient-primary w-100 my-4 mb-2">Sign in</button>
                   </div>
                   {{-- <p class="mt-4 text-sm text-center">
                     Don't have an account?
@@ -148,22 +150,7 @@
 
               </div>
             </div>
-            {{-- <div class="col-12 col-md-6">
-              <ul class="nav nav-footer justify-content-center justify-content-lg-end">
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com" class="nav-link text-white" target="_blank">Creative Tim</a>
-                </li>
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com/presentation" class="nav-link text-white" target="_blank">About Us</a>
-                </li>
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com/blog" class="nav-link text-white" target="_blank">Blog</a>
-                </li>
-                <li class="nav-item">
-                  <a href="https://www.creative-tim.com/license" class="nav-link pe-0 text-white" target="_blank">License</a>
-                </li>
-              </ul>
-            </div> --}}
+
           </div>
         </div>
       </footer>
@@ -186,8 +173,57 @@
   </script>
   <!-- Github buttons -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
-  <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="{{ asset('js/jquery.min.js') }}"></script>
   <script src="{{ asset('js/material-dashboard.min.js?v=3.0.0') }}"></script>
+  <script src="{{ asset('js/sweetalert2.min.js') }}"></script>
+
+
+  <script>
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    });
+
+    $('#login-form').on('submit', function (e) {
+        e.preventDefault();
+
+        var data = {
+            email: $('input[name="email"]').val(),
+            password: $('input[name="password"]').val(),
+            _token: $('input[name="_token"]').val(),
+        };
+
+        $.ajax({
+            url: '/login/loginAuth',
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json', // Set content type to JSON
+            data: JSON.stringify(data), // Convert data to JSON
+            success: function (response) {
+                Toast.fire({
+                    icon: "success",
+                    title: response.message
+                });
+                location.href = '/'
+            },
+            error: function (err) {
+                Toast.fire({
+                    icon: "error",
+                    title: err.responseJSON.message // Assuming the error response has a 'message' field
+                });
+            }
+        });
+    });
+</script>
+
+  </script>
 </body>
 
 </html>

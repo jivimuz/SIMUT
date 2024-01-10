@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,12 +14,12 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-Route::get('/', function () {
-    $main['pageTitle'] = 'Dashboard';
-    $main['subTitle'] = 'sa';
-    $main['contentView'] = 'Dashboard';
-    return view('index', compact('main'));
+Route::middleware(['auth'])->group(function () {
+Route::get('/', [DashboardController::class, 'index'])->name('home');
+Route::get('logout', [AuthController::class, 'actionlogout'])->name('logout');
 });
 
-Route::get('login', [AuthController::class, 'login'])->name('login');
+Route::prefix('login')->group(function () {
+    Route::get('/', [AuthController::class, 'login'])->name('login');
+    Route::post('loginAuth', [AuthController::class, 'loginAuth'])->name('loginAuth');
+});
